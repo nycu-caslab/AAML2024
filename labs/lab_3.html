@@ -1,0 +1,836 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Lab 3 : Systolic Array &#8212; CSIC30066: Accelerator Architectures for Machine Learning</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'labs/lab_3';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Lab 4 : Elementwise Unit" href="lab_4.html" />
+    <link rel="prev" title="Lab 2 : Quantization and SIMD MAC" href="lab_2.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">CSIC30066: Accelerator Architectures for Machine Learning</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Class:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../class/staff.html">Staff</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Labs:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="lab_1.html">Lab 1 : Environment Setup and Profiling a Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lab_2.html">Lab 2 : Quantization and SIMD MAC</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Lab 3 : Systolic Array</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lab_4.html">Lab 4 : Elementwise Unit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lab_5.html">Lab 5 : Systolic Array with im2col for Convolution</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Project:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../project/final_project.html">Final Project: MLPerf™ Tiny</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/labs/lab_3.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Lab 3 : Systolic Array</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#goal-of-this-lab">Goal of this lab</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#systolic-array-implementation">Systolic Array Implementation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisite">Prerequisite</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements">Requirements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-started">Getting Started</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#interface-and-block-diagram">Interface and Block Diagram</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#rules">Rules</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-exercise-1-20">Basic Exercise #1 - 20%</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-exercise-2-20">Basic Exercise #2 - 20%</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-exercise-3-30">Basic Exercise #3 - 30%</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-exercise-30">Advanced Exercise - 30%</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#appendix">Appendix</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#memory-mapping-type-a-with-transpose">Memory Mapping - Type A (with transpose)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#memory-mapping-type-b-without-transpose">Memory Mapping - Type B (without transpose)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submission">Submission</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="lab-3-systolic-array">
+<h1>Lab 3 : Systolic Array<a class="headerlink" href="#lab-3-systolic-array" title="Link to this heading">#</a></h1>
+<section id="goal-of-this-lab">
+<h2>Goal of this lab<a class="headerlink" href="#goal-of-this-lab" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<ul class="simple">
+<li><p><a class="reference internal" href="#basic-exercise-1-20"><span class="xref myst">Basic Exercise #1 - 20%</span></a></p></li>
+<li><p><a class="reference internal" href="#basic-exercise-2-20"><span class="xref myst">Basic Exercise #2 - 20%</span></a></p></li>
+<li><p><a class="reference internal" href="#basic-exercise-3-30"><span class="xref myst">Basic Exercise #3 - 30%</span></a></p></li>
+<li><p><a class="reference internal" href="#advanced-exercise-30"><span class="xref myst">Advanced Exercise - 30%</span></a></p></li>
+</ul>
+</section>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<p>The systolic array used by Google Tensor Processing Unit (TPU) accelerates the matrix computation by using the dataflow operation. The systolic array contains multiple processing elements (PEs), each of them is responsible for the multiply–and-accumulate (MAC) operation. It can performs multiple elements in a matrix simultaneously and achieves high computational throughput.</p>
+<p>In this lab, we will use Verilog to implement the PE and a small systolic array composed of 4 x 4 PEs. You may refer to different dataflow stationary policy (e.g. weight and output stationary).</p>
+<p>(Hint: The weight stationary is more complicated than output stationary.)</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ol class="arabic simple">
+<li><p>This lab does not require demonstration, submit your code to E3 only, details are in <a class="reference internal" href="#submission"><span class="xref myst">Submission</span></a>.</p></li>
+<li><p>You will be asked to put your systolic array on FPGA in <em><strong>lab 5</strong></em>, so please make sure that your systolic array is a synthesizable circuit.</p></li>
+</ol>
+</div>
+</section>
+<section id="systolic-array-implementation">
+<h2>Systolic Array Implementation<a class="headerlink" href="#systolic-array-implementation" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<p>The goals of this lab are to familiarize you with the concepts of dataflows in systolic array architectures. This will get you hand-on experience with dataflow routing and processing elements implementations. In this lab, you only need to construct the TPU module.</p>
+<section id="prerequisite">
+<h3>Prerequisite<a class="headerlink" href="#prerequisite" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Python3 with numpy library installed</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">iverilog</span></code> or <code class="docutils literal notranslate"><span class="pre">VCS</span></code> or <code class="docutils literal notranslate"><span class="pre">irun</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nWave</span></code> or <code class="docutils literal notranslate"><span class="pre">Verdi</span></code> or <code class="docutils literal notranslate"><span class="pre">GTKWave</span></code> or anything that can read <code class="docutils literal notranslate"><span class="pre">.vcd</span></code> or <code class="docutils literal notranslate"><span class="pre">.fsdb</span></code></p></li>
+<li><p>Makefile</p></li>
+</ul>
+</section>
+<section id="requirements">
+<h3>Requirements<a class="headerlink" href="#requirements" title="Link to this heading">#</a></h3>
+<p>You need to perform Matrix multiplication with one of dataflow stationary method with correct functional simulation in 4x4 Processing elements(PEs). That is, this design can perform (M * K) * (K * N) 8-bit integer matrix multiplication.</p>
+<p>Your design should be written in the Verilog. There is no limitation in how you program your design.
+Your PEs shouldn’t exceed 4x4, where a 2D systolic array architecture is recommended.
+An 8-bits input data, 32-bits accumulated data design. Please be careful with the bit-width problem.
+(1024 + 256 ∗ 2) KiBytes in total of global buffer size.</p>
+</section>
+<section id="getting-started">
+<h3>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">#</a></h3>
+<p>This lab will require a beginner’s level of verilog.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/nycu-caslab/AAML2024-Lab3.git
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The testbench generates waveform to <code class="docutils literal notranslate"><span class="pre">dump.vcd</span></code> or <code class="docutils literal notranslate"><span class="pre">dump.fsdb</span></code> (change the output file in the <code class="docutils literal notranslate"><span class="pre">TESTBENCH.v</span></code>).
+After running the simulation each time, you may use your waveform viewer to check it out.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>nWave (dump.fsdb | dump.vcd)
+or
+gtkwave dump.vcd
+</pre></div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ol class="arabic simple">
+<li><p>The default verilog compiler in the makefile is <code class="docutils literal notranslate"><span class="pre">iverilog</span></code>, and using <code class="docutils literal notranslate"><span class="pre">vvp</span></code> as simulator.
+If you have the licence of <code class="docutils literal notranslate"><span class="pre">VCS</span></code> and want faster simulation, you may use the <code class="docutils literal notranslate"><span class="pre">Makefile_vcs</span></code>.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">Makefile_ncverilog</span></code> is for reference only, our Cadence licence has been down for a while :(</p></li>
+</ol>
+</div>
+</section>
+<section id="interface-and-block-diagram">
+<h3>Interface and Block Diagram<a class="headerlink" href="#interface-and-block-diagram" title="Link to this heading">#</a></h3>
+<p><strong>Block Diagram</strong></p>
+<a class="reference internal image-reference" href="../_images/block_diagram-2.png"><img alt="../_images/block_diagram-2.png" src="../_images/block_diagram-2.png" style="width: 560px;" />
+</a>
+<p><strong>Tabel 1: The control signals</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>I/O</p></th>
+<th class="head"><p>Signal name</p></th>
+<th class="head"><p>Bit width</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Input</p></td>
+<td><p>clk</p></td>
+<td><p>1</p></td>
+<td><p>The clock signal</p></td>
+</tr>
+<tr class="row-odd"><td><p>Input</p></td>
+<td><p>rst_n</p></td>
+<td><p>1</p></td>
+<td><p>The reset signal, which is active low</p></td>
+</tr>
+<tr class="row-even"><td><p>Input</p></td>
+<td><p>in_valid</p></td>
+<td><p>1</p></td>
+<td><p>The input is valid when in_valid is high and will only high for one cycle</p></td>
+</tr>
+<tr class="row-odd"><td><p>Input</p></td>
+<td><p>K</p></td>
+<td><p>8</p></td>
+<td><p>dimension K of the matrix (M,K), (K,N)</p></td>
+</tr>
+<tr class="row-even"><td><p>Input</p></td>
+<td><p>M</p></td>
+<td><p>8</p></td>
+<td><p>dimension M of the matrix (M,K), (K,N)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Input</p></td>
+<td><p>N</p></td>
+<td><p>8</p></td>
+<td><p>dimension N of the matrix (M,K), (K,N)</p></td>
+</tr>
+<tr class="row-even"><td><p>Output</p></td>
+<td><p>busy</p></td>
+<td><p>1</p></td>
+<td><p>High when the design is busy. Pattern will check your answer when busy is low after every in_valid.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Tabel 2: The SRAM interface of A and B SRAM</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>I/O</p></th>
+<th class="head"><p>Signal name</p></th>
+<th class="head"><p>Bit width</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Input</p></td>
+<td><p>wr_en</p></td>
+<td><p>1</p></td>
+<td><p>The write enable signal.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Input</p></td>
+<td><p>index</p></td>
+<td><p>16</p></td>
+<td><p>The address of the sram to be read or write.</p></td>
+</tr>
+<tr class="row-even"><td><p>Input</p></td>
+<td><p>data_in</p></td>
+<td><p>32</p></td>
+<td><p>The data input to write to the SRAM</p></td>
+</tr>
+<tr class="row-odd"><td><p>Output</p></td>
+<td><p>data_out</p></td>
+<td><p>32</p></td>
+<td><p>The data output from the SRAM</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Tabel 3: The SRAM interface of C SRAM</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>I/O</p></th>
+<th class="head"><p>Signal name</p></th>
+<th class="head"><p>Bit width</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Input</p></td>
+<td><p>wr_en</p></td>
+<td><p>1</p></td>
+<td><p>The write enable signal.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Input</p></td>
+<td><p>index</p></td>
+<td><p>16</p></td>
+<td><p>The address of the sram to be read or write.</p></td>
+</tr>
+<tr class="row-even"><td><p>Input</p></td>
+<td><p>data_in</p></td>
+<td><p>128</p></td>
+<td><p>The data input to write to the SRAM</p></td>
+</tr>
+<tr class="row-odd"><td><p>Output</p></td>
+<td><p>data_out</p></td>
+<td><p>128</p></td>
+<td><p>The data output from the SRAM</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="rules">
+<h3>Rules<a class="headerlink" href="#rules" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Your TPU design (<code class="docutils literal notranslate"><span class="pre">TPU.v</span></code>) should be under the top module which provided by TA, it’s fine to add various new files in the <code class="docutils literal notranslate"><span class="pre">RTL</span></code> directory.</p></li>
+<li><p>you may not modify the <code class="docutils literal notranslate"><span class="pre">global_buffer.v</span></code>.</p></li>
+<li><p>At the start of the simulation, testbench will load the global buffer A &amp; B, which assume that CPU or DMA has already prepared the data for TPU in global buffer. When signal <code class="docutils literal notranslate"><span class="pre">in_valid</span> <span class="pre">==</span> <span class="pre">1</span></code>, the size of the two matrices will be available for TPU (m, n, k) for <em><strong>only one cycle</strong></em>.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For the details of the mapping of matrix into global buffer. Please refer to the <em><strong><a class="reference internal" href="#appendix"><span class="xref myst">Appendix</span></a></strong></em>. There are two types of mapping. The transposed <em><strong>Type A</strong></em> for <code class="docutils literal notranslate"><span class="pre">matrix</span> <span class="pre">A</span></code>, and <em><strong>Type B</strong></em> for <code class="docutils literal notranslate"><span class="pre">matrix</span> <span class="pre">B</span> <span class="pre">and</span> <span class="pre">C</span></code>.</p>
+</div>
+<ul class="simple">
+<li><p>Testbench will compare your output global buffer with golden, when you finish the calculation, that is <code class="docutils literal notranslate"><span class="pre">busy</span> <span class="pre">==</span> <span class="pre">0</span></code>. Then you need to wait for the next <code class="docutils literal notranslate"><span class="pre">in_valid</span></code> for the next test case.</p></li>
+<li><p>You should implement your own data loader, process elements(PEs), and controller which schedule the data in global buffer A &amp; B to be calculated in the systolic array.</p></li>
+<li><p>You need to set <code class="docutils literal notranslate"><span class="pre">busy</span></code> to high <em><strong>immediately</strong></em> after <code class="docutils literal notranslate"><span class="pre">in_valid</span></code> fall from high to low.</p></li>
+<li><p>Use asynchronous reset active low architecture.</p></li>
+<li><p>The execution latency <em><strong>per matrix multiplication</strong></em> (not the whole execution time) is limited in <em><strong>1,500,000</strong></em> cycles.</p></li>
+</ul>
+</section>
+</section>
+<section id="basic-exercise-1-20">
+<h2>Basic Exercise #1 - 20%<a class="headerlink" href="#basic-exercise-1-20" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<ul class="simple">
+<li><p>Input data:</p>
+<ul>
+<li><p>A matrix and B matrix which size are constrainted to 2 * 2</p></li>
+<li><p>control signal (refer to details in table 1, 2, 3)</p></li>
+</ul>
+</li>
+<li><p>Required Output:</p>
+<ul>
+<li><p>the 2*2 C matrix of A matrix * B matrix</p></li>
+</ul>
+</li>
+<li><p>Steps:</p>
+<ol class="arabic simple">
+<li><p>Take data from global buffer</p></li>
+<li><p>Use the data from global buffer to calculate with PEs</p></li>
+<li><p>Output the result to C global buffer</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">verif1</span></code></p>
+<ul>
+<li><p>10 test cases of A(2 * 2) * B(2 * 2)</p></li>
+</ul>
+</li>
+<li><p>The bench will tell if you did it correctly</p></li>
+</ol>
+</li>
+</ul>
+</section>
+<section id="basic-exercise-2-20">
+<h2>Basic Exercise #2 - 20%<a class="headerlink" href="#basic-exercise-2-20" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<ul class="simple">
+<li><p>Input data:</p>
+<ul>
+<li><p>A matrix and B matrix which size are constrainted to 4 * 4</p></li>
+<li><p>control signal (refer to details in table 1, 2, 3)</p></li>
+</ul>
+</li>
+<li><p>Required Output:</p>
+<ul>
+<li><p>the 4 * 4 C matrix of A matrix * B matrix</p></li>
+</ul>
+</li>
+<li><p>Steps:</p>
+<ol class="arabic simple">
+<li><p>refer to Basic Lab1</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">verif2</span></code></p>
+<ul>
+<li><p>10 test cases of A(4 * 4) * B(4 * 4)</p></li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+</section>
+<section id="basic-exercise-3-30">
+<h2>Basic Exercise #3 - 30%<a class="headerlink" href="#basic-exercise-3-30" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<ul class="simple">
+<li><p>Input data:</p>
+<ul>
+<li><p>A matrix and B matrix which size are 4 * K and K * 4 separately</p></li>
+<li><p>control signal (refer to details in table 1, 2, 3)</p></li>
+</ul>
+</li>
+<li><p>Required Output:</p>
+<ul>
+<li><p>the 4 * 4 C matrix of A matrix * B matrix</p></li>
+</ul>
+</li>
+<li><p>Steps:</p>
+<ol class="arabic simple">
+<li><p>refer to Basic Lab1</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">verif3</span></code></p>
+<ul>
+<li><p>10 test cases of A(4 * K) * B(K * 4)</p></li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+</section>
+<section id="advanced-exercise-30">
+<h2>Advanced Exercise - 30%<a class="headerlink" href="#advanced-exercise-30" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<ul class="simple">
+<li><p>Input data:</p>
+<ul>
+<li><p>A matrix and B matrix which size are M * K and K * N separately</p></li>
+<li><p>control signal (refer to details in table 1, 2, 3)</p></li>
+</ul>
+</li>
+<li><p>Required Output:</p>
+<ul>
+<li><p>the (M * N) C matrix of A matrix * B matrix</p></li>
+</ul>
+</li>
+<li><p>Steps:</p>
+<ol class="arabic simple">
+<li><p>refer to Basic Lab1</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">verif4</span></code></p>
+<ul>
+<li><p>50 test cases of A(M * K) * B(K * N), where M, K, N ∈ [4, 128)</p></li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+</section>
+<section id="appendix">
+<h2>Appendix<a class="headerlink" href="#appendix" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<section id="memory-mapping-type-a-with-transpose">
+<h3>Memory Mapping - Type A (with transpose)<a class="headerlink" href="#memory-mapping-type-a-with-transpose" title="Link to this heading">#</a></h3>
+<p>The matrix A in global buffer A is placed with a transposed style, and other spaces are all 0-padded
+<a class="reference internal" href="https://hackmd.io/_uploads/S18IElrj2.png"><img alt="https://hackmd.io/_uploads/S18IElrj2.png" src="https://hackmd.io/_uploads/S18IElrj2.png" style="width: 660px;" /></a></p>
+<p>Example of a 10 * 7 matrix</p>
+<a class="reference internal image-reference" href="../_images/A_3.png"><img alt="../_images/A_3.png" src="../_images/A_3.png" style="width: 660px;" />
+</a>
+<p>the memory layout of this matrix looks like (note the transpose in the layout)</p>
+<a class="reference internal image-reference" href="../_images/A_4.png"><img alt="../_images/A_4.png" src="../_images/A_4.png" style="width: 150px;" />
+</a>
+</section>
+<section id="memory-mapping-type-b-without-transpose">
+<h3>Memory Mapping - Type B (without transpose)<a class="headerlink" href="#memory-mapping-type-b-without-transpose" title="Link to this heading">#</a></h3>
+<a class="reference internal image-reference" href="https://hackmd.io/_uploads/BJYR4gSo3.png"><img alt="https://hackmd.io/_uploads/BJYR4gSo3.png" src="https://hackmd.io/_uploads/BJYR4gSo3.png" style="width: 660px;" />
+</a>
+<p>The matrix B looks more forward in memory layout, for example, a 7 * 9 matrix</p>
+<a class="reference internal image-reference" href="../_images/B_1.png"><img alt="../_images/B_1.png" src="../_images/B_1.png" style="width: 660px;" />
+</a>
+<p>looks like this in global buffer B, with 0-padded also</p>
+<a class="reference internal image-reference" href="../_images/B_2.png"><img alt="../_images/B_2.png" src="../_images/B_2.png" style="width: 150px;" />
+</a>
+</section>
+</section>
+<section id="submission">
+<h2>Submission<a class="headerlink" href="#submission" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<p>Please organize your submission files into a zip archive structured as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>YourID.zip
+    └── YourID/
+        ├── TPU.v
+        ├── systolic_array.v
+        ├── PE.v
+        └── other files you added inside the RTL directory...
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<ol class="arabic simple">
+<li><p>Make sure your files are well included!</p></li>
+<li><p>You <strong>DO NOT</strong> have to submit the <code class="docutils literal notranslate"><span class="pre">global_buffer.v</span></code>.</p></li>
+</ol>
+<p>TAs should be able to run your project without any modification. If TAs cannot compile or run your code, <strong>you can’t get any scores</strong>. Also, <strong>PLAGIARISM is not allowed</strong>.</p>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="lab_2.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Lab 2 : Quantization and SIMD MAC</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="lab_4.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Lab 4 : Elementwise Unit</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#goal-of-this-lab">Goal of this lab</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#systolic-array-implementation">Systolic Array Implementation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisite">Prerequisite</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements">Requirements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-started">Getting Started</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#interface-and-block-diagram">Interface and Block Diagram</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#rules">Rules</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-exercise-1-20">Basic Exercise #1 - 20%</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-exercise-2-20">Basic Exercise #2 - 20%</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-exercise-3-30">Basic Exercise #3 - 30%</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-exercise-30">Advanced Exercise - 30%</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#appendix">Appendix</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#memory-mapping-type-a-with-transpose">Memory Mapping - Type A (with transpose)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#memory-mapping-type-b-without-transpose">Memory Mapping - Type B (without transpose)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submission">Submission</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By  NYCU CAS-Lab
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, NYCU CAS-Lab.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

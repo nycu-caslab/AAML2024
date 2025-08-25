@@ -1,0 +1,681 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Final Project: MLPerf™ Tiny &#8212; CSIC30066: Accelerator Architectures for Machine Learning</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'project/final_project';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Lab 5 : Systolic Array with im2col for Convolution" href="../labs/lab_5.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">CSIC30066: Accelerator Architectures for Machine Learning</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Class:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../class/staff.html">Staff</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Labs:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../labs/lab_1.html">Lab 1 : Environment Setup and Profiling a Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../labs/lab_2.html">Lab 2 : Quantization and SIMD MAC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../labs/lab_3.html">Lab 3 : Systolic Array</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../labs/lab_4.html">Lab 4 : Elementwise Unit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../labs/lab_5.html">Lab 5 : Systolic Array with im2col for Convolution</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Project:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Final Project: MLPerf™ Tiny</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/project/final_project.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Final Project: MLPerf™ Tiny</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#selected-model">Selected Model</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setup">Setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements">Requirements</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#files">Files</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#golden-test">Golden Test</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#architecture">Architecture</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#performance">Performance</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#presentation-30">Presentation - 30%</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#grading-policy">Grading Policy</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#grading-formula">Grading Formula</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submission">Submission</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="final-project-mlperf-tiny">
+<h1>Final Project: MLPerf™ Tiny<a class="headerlink" href="#final-project-mlperf-tiny" title="Link to this heading">#</a></h1>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 12/8,19:05: </span><a class="reference internal" href="#grading-formula"><span class="xref myst">Grading Formula</span></a> update:</p>
+<ul class="simple">
+<li><p>It is okay now for not passing the golden test, as long as you can keep the accuracy higher than 75%.</p></li>
+</ul>
+</div>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<p>In the final project, you are required to design a CFU for MLPerf™ Tiny image classification benchmark model and targeting on decreasing latency.</p>
+<p>Also, Your design will be benchmarked by the MLPerf™ Tiny Benchmark Framework. Here is its <a class="reference external" href="https://github.com/mlcommons/tiny">Github page</a> for detailed information aboud MLPerf™ Tiny.</p>
+<section id="selected-model">
+<h3>Selected Model<a class="headerlink" href="#selected-model" title="Link to this heading">#</a></h3>
+<p>We use <a class="reference external" href="https://github.com/mlcommons/tiny/tree/master/benchmark/training/image_classification">MLPerf™ Tiny Image Classification Benchmark Model</a> for the project. It is a tiny version of ResNet, consisting of Conv2D, Add, AvgPool2D, FC, and Softmax.</p>
+<p>You don’t need to integrate the model on yourself. The model is already included in CFU. See <code class="docutils literal notranslate"><span class="pre">${CFU_ROOT}/common/src/models/mlcommons_tiny_v01/imgc/</span></code>. Also, you can inspect the architecture of the selected model with <a class="reference external" href="https://netron.app/">Netron</a>. It might provide you some inspiration for your design.</p>
+</section>
+</section>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<p>Clone the fork of final project to get the final project template</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/nycu-caslab/AAML2024-project.git
+</pre></div>
+</div>
+<p>Then run the setup script</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd ${CFU_ROOT}
+$ ./scripts/setup
+</pre></div>
+</div>
+<p>Final project template path: <code class="docutils literal notranslate"><span class="pre">${CFU_ROOT}/proj/AAML_final_proj</span></code></p>
+<ul class="simple">
+<li><p>Dependency (python): pyserial, tdqm</p></li>
+</ul>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<section id="files">
+<h3>Files<a class="headerlink" href="#files" title="Link to this heading">#</a></h3>
+<p>You can modify the following files:</p>
+<ul class="simple">
+<li><p>Kernel API</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tensorflow/lite/micro/kernels/add.cc</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tensorflow/lite/micro/kernels/conv.cc</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tensorflow/lite/micro/kernels/fully_connected.cc</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tensorflow/lite/micro/kernels/softmax.cc</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tensorflow/lite/micro/kernels/pooling.cc</span></code></p></li>
+</ol>
+</li>
+<li><p>Kernel Implementation</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tensorflow/lite/kernels/internal/reference/integer_ops/add.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tensorflow/lite/kernels/internal/reference/integer_ops/conv.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tensorflow/lite/kernels/internal/reference/integer_ops/fully_connected.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tensorflow/lite/kernels/internal/reference/integer_ops/softmax.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tensorflow/lite/kernels/internal/reference/integer_ops/pooling.h</span></code></p></li>
+</ol>
+</li>
+<li><p>HW design</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cfu.v</span></code></p></li>
+</ol>
+</li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>No other source code in <code class="docutils literal notranslate"><span class="pre">${CFU_ROOT}/common/**</span></code> and <code class="docutils literal notranslate"><span class="pre">${CFU_ROOT}/third_party/**</span></code> should be overriden unless asking for permission.</p>
+</div>
+</section>
+<section id="golden-test">
+<h3>Golden Test<a class="headerlink" href="#golden-test" title="Link to this heading">#</a></h3>
+<p>You may use the golden to verify your design, but note that there are flexibility for your accuracy, so you may or may not reference on this test as long as your accuracy is larger than 75%.</p>
+<ul class="simple">
+<li><p>After <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">prog</span> <span class="pre">&amp;&amp;</span> <span class="pre">make</span> <span class="pre">load</span></code>, input <code class="docutils literal notranslate"><span class="pre">11g</span></code> to run golden test of MLPerf Tiny imgc model. The result should be like:<br />
+<img alt="" src="../_images/golden.png" /></p></li>
+</ul>
+</section>
+<section id="architecture">
+<h3>Architecture<a class="headerlink" href="#architecture" title="Link to this heading">#</a></h3>
+<p>You can also modify the architecture or the parameters of the selected model. The classification accuracy of your design is evaluated.</p>
+<p>However, <strong>DO NOT RETRAIN THE MODEL ON TESTING IMAGES</strong>.</p>
+</section>
+<section id="performance">
+<h3>Performance<a class="headerlink" href="#performance" title="Link to this heading">#</a></h3>
+<p>We use the evaluation script to evaluate your design.</p>
+<ul class="simple">
+<li><p>Usage:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">prog</span> <span class="pre">&amp;&amp;</span> <span class="pre">make</span> <span class="pre">load</span></code> &gt; reboot litex &gt; turn off litex-term &gt; run eval script</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">eval_script.py</span></code> in <code class="docutils literal notranslate"><span class="pre">${CFU_ROOT}/proj/AAML_final_pro</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--port</span> <span class="pre">{tty_path:-/dev/ttyUSB1}</span></code>: Add this argument to select correct serial port</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>The result should be like:<br />
+<img alt="" src="../_images/script.png" /></p>
+<p>Improve the performance of your design to decrease the latency as low as it could be.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you just want to know the latency of your design, it would be easier to run a test input instead of whole process of evaluation.</p>
+</div>
+</section>
+</section>
+<section id="presentation-30">
+<h2>Presentation - 30%<a class="headerlink" href="#presentation-30" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>You will receive 0 point if you don’t present your work</p>
+</div>
+<ul class="simple">
+<li><p>The presentation takes 30% of your final project score.</p></li>
+<li><p>You should give a presentation in the last class of this semester</p></li>
+<li><p>Each team has 5 minutes to present at most</p></li>
+<li><p>Your presentation should contains</p>
+<ul>
+<li><p>The introduction of your design</p>
+<ul>
+<li><p>SW</p></li>
+<li><p>HW</p></li>
+</ul>
+</li>
+<li><p>(Optional) The implementation of your design</p>
+<ul>
+<li><p>SW</p></li>
+<li><p>HW</p></li>
+</ul>
+</li>
+<li><p>The evaluation of your design</p>
+<ul>
+<li><p>Accuracy (if you modify the selected model)</p></li>
+<li><p>Latency</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="grading-policy">
+<h2>Grading Policy<a class="headerlink" href="#grading-policy" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<ul>
+<li><p>We will compare the performance of your design with our reference design (simply the SIMD in lab 2) and will not be released.</p></li>
+<li><p>ACC won’t be tested if you didn’t modify the model</p></li>
+<li><p>TA’s latency:
+\begin{gather}
+\begin{aligned}
+\text{LAT}_{TA} \approx 154M \ \text{cycles} \approx 2036000 \ \mu s
+\end{aligned}
+\end{gather}</p></li>
+<li><p>Latency and accuracy will be measured by the provided evaluation script (the following is the original performance).</p>
+<p><img alt="" src="../_images/measured.png" /></p>
+</li>
+<li><p>Ranking will be released with everyone’s evaluation result after the deadline.</p></li>
+</ul>
+</section>
+<section id="grading-formula">
+<h2>Grading Formula<a class="headerlink" href="#grading-formula" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<ul class="simple">
+<li><p>Accuracy:
+\begin{gather*}
+\text{ACC} = \begin{cases}
+\min \left( \frac{\text{ACC}<em>{\text{student}}}{\text{ACC}</em>{\text{original}}}, 100% \right) &amp; \text{if } {\text{ACC}_{\text{student}}} \text{≥ 75%} \</p></li>
+</ul>
+<p>0 &amp; \text{if } {\text{ACC}_{\text{student}}} \text{&lt; 75%}
+\end{cases}
+\end{gather*}</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Note that better ACC won’t give you better score!!</p>
+</div>
+<ul class="simple">
+<li><p>Latency
+:</p></li>
+</ul>
+<div class="amsmath math notranslate nohighlight">
+\[\begin{gather*}
+\text{LAT}_{\text{base}} = \min \left( 80 \times \frac{\text{LAT}_{\text{TA}}}{\text{LAT}_{\text{student}}}, 80 \right)
+\end{gather*}\]</div>
+<div class="amsmath math notranslate nohighlight">
+\[\begin{gather*}
+\text{LAT}_{\text{rank}} = \min \left( 20 \times \frac{\#\text{students} - \text{Rank}_{\text{student}}}{\#\text{students}}, 20 \right) \\
+\text{where } \text{Rank}_{\text{student}} \in [0, \#\text{students} - 1]
+\end{gather*}\]</div>
+<ul class="simple">
+<li><p>Presentation</p></li>
+</ul>
+<div class="amsmath math notranslate nohighlight">
+\[\begin{gather*}
+\text{Present} = 
+\begin{cases} 
+    -30 &amp; \text{if you submit a plain impl of lab2 with the same performance as TA's,} \\
+    0 &amp; \text{otherwise} 
+\end{cases}
+\end{gather*}\]</div>
+<ul class="simple">
+<li><p>Final score:
+\begin{gather*}
+\text{Score} = ACC \times (LAT_{base} + LAT_{rank}) + \text{Present} \</p></li>
+</ul>
+<p>\text{(Highest score} = 1 \times 100% \times (80 + 20) - 0 = 100)
+\end{gather*}</p>
+</section>
+<section id="submission">
+<h2>Submission<a class="headerlink" href="#submission" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<p>Please fork the repo and push your work to it</p>
+<ul class="simple">
+<li><p>If you use your own model:</p>
+<ul>
+<li><p>Put pretrained model under <code class="docutils literal notranslate"><span class="pre">${CFU_ROOT}/proj/AAML_final_proj</span></code> or somewhere else we can easily find it</p></li>
+<li><p>Put your training script in your final project repo and leave a message about where to find them in the README.md under your CFU project direcrtory</p></li>
+</ul>
+</li>
+<li><p>Grading workflow will be:</p>
+<ul>
+<li><p>Clone your fork</p></li>
+<li><p>Apply your custom model if needed</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">prog</span> <span class="pre">&amp;&amp;</span> <span class="pre">make</span> <span class="pre">load</span></code></p></li>
+<li><p>Run evaluation script</p></li>
+<li><p>Record measurements</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../labs/lab_5.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Lab 5 : Systolic Array with im2col for Convolution</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#selected-model">Selected Model</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setup">Setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements">Requirements</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#files">Files</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#golden-test">Golden Test</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#architecture">Architecture</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#performance">Performance</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#presentation-30">Presentation - 30%</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#grading-policy">Grading Policy</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#grading-formula">Grading Formula</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submission">Submission</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By  NYCU CAS-Lab
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, NYCU CAS-Lab.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

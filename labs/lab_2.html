@@ -1,0 +1,707 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Lab 2 : Quantization and SIMD MAC &#8212; CSIC30066: Accelerator Architectures for Machine Learning</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'labs/lab_2';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Lab 3 : Systolic Array" href="lab_3.html" />
+    <link rel="prev" title="Lab 1 : Environment Setup and Profiling a Model" href="lab_1.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">CSIC30066: Accelerator Architectures for Machine Learning</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Class:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../class/staff.html">Staff</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Labs:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="lab_1.html">Lab 1 : Environment Setup and Profiling a Model</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Lab 2 : Quantization and SIMD MAC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lab_3.html">Lab 3 : Systolic Array</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lab_4.html">Lab 4 : Elementwise Unit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lab_5.html">Lab 5 : Systolic Array with im2col for Convolution</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Project:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../project/final_project.html">Final Project: MLPerf™ Tiny</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/labs/lab_2.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Lab 2 : Quantization and SIMD MAC</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#goal-of-this-lab">Goal of this lab</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-quantized-model-10">Running Quantized Model - 10%</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simd-mac-instruction-80">SIMD MAC Instruction - 80%</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#accelerate-convolution-60">Accelerate Convolution - 60%</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cfu-v">cfu.v</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#conv-h">conv.h</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#accelerate-fully-connected-20">Accelerate Fully Connected - 20%</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#questions-in-the-demo-10">Questions in the Demo - 10%</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submission">Submission</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="lab-2-quantization-and-simd-mac">
+<h1>Lab 2 : Quantization and SIMD MAC<a class="headerlink" href="#lab-2-quantization-and-simd-mac" title="Link to this heading">#</a></h1>
+<section id="goal-of-this-lab">
+<h2>Goal of this lab<a class="headerlink" href="#goal-of-this-lab" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<ul class="simple">
+<li><p><a class="reference internal" href="#running-quantized-model-10"><span class="xref myst">Running Quantized Model - 10%</span></a></p></li>
+<li><p><a class="reference internal" href="#simd-mac-instruction-80"><span class="xref myst">SIMD MAC Instruction - 80%</span></a></p></li>
+<li><p><a class="reference internal" href="#questions-in-the-demo-10"><span class="xref myst">Questions in the Demo - 10%</span></a></p></li>
+</ul>
+</section>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<p>In the previous lab, we successfully ran the float32 Keyword Spotting (KWS) model on CFU-Playground. In this lab, we will focus on running a quantized int8 KWS model and leverage the benefits of quantization to achieve acceleration.</p>
+</section>
+<section id="running-quantized-model-10">
+<h2>Running Quantized Model - 10%<a class="headerlink" href="#running-quantized-model-10" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>CFU-Playground/proj
+$<span class="w"> </span>cp<span class="w"> </span>-r<span class="w"> </span>&lt;lab1<span class="w"> </span>proj<span class="w"> </span>folder&gt;/*<span class="w"> </span>&lt;lab2<span class="w"> </span>proj<span class="w"> </span>folder&gt;
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>&lt;lab2<span class="w"> </span>proj<span class="w"> </span>folder&gt;
+</pre></div>
+</div>
+<p>Quantizing a float model to int8 can be quite complex and is not the primary focus of this lab. Therefore, we have provided the quantized model for you. You can simply replace <code class="docutils literal notranslate"><span class="pre">CFU-Playground/common/src/models/ds_cnn_stream_fe/ds_cnn_stream_fe.tflite</span></code> with the new model provided below.</p>
+<blockquote>
+<div><p><a class="reference external" href="https://drive.google.com/file/d/1CgEhJm0IoaXx3ULrn-Dfuw3LH83SnFlV/view?usp=sharing">ds_cnn_stream_fe.tflite</a></p>
+</div></blockquote>
+<p>Ensure that the <code class="docutils literal notranslate"><span class="pre">ds_cnn_stream_fe</span></code> model is included in the project’s Makefile. Additionally, you may want to include the <code class="docutils literal notranslate"><span class="pre">pdti8</span></code> model to verify if your design can pass the golden test.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># Uncomment to include specified model in built binary</span>
+<span class="nv">DEFINES</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span>INCLUDE_MODEL_PDTI8
+<span class="c1">#DEFINES += INCLUDE_MODEL_MICRO_SPEECH</span>
+<span class="c1">#DEFINES += INCLUDE_MODEL_MAGIC_WAND</span>
+<span class="c1">#DEFINES += INCLUDE_MODEL_MNV2</span>
+<span class="c1">#DEFINES += INCLUDE_MODEL_HPS</span>
+<span class="c1">#DEFINES += INCLUDE_MODEL_MLCOMMONS_TINY_V01_ANOMD</span>
+<span class="c1">#DEFINES += INCLUDE_MODEL_MLCOMMONS_TINY_V01_IMGC</span>
+<span class="c1">#DEFINES += INCLUDE_MODEL_MLCOMMONS_TINY_V01_KWS</span>
+<span class="c1">#DEFINES += INCLUDE_MODEL_MLCOMMONS_TINY_V01_VWW</span>
+<span class="nv">DEFINES</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span>INCLUDE_MODEL_DS_CNN_STREAM_FE
+</pre></div>
+</div>
+<p>Build and load the hardware and software to test.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>make<span class="w"> </span>clean
+$<span class="w"> </span>make<span class="w"> </span>prog
+$<span class="w"> </span>make<span class="w"> </span>load
+</pre></div>
+</div>
+<p>The result should look like the image below. As with the previous lab, the predicted results should also be correct.</p>
+<p><img alt="alt text" src="../_images/quantized.png" /></p>
+<p>You should observe a significant reduction in the number of cycles, as the quantized fixed-point model eliminates the need for complex floating-point calculations. However, we can further enhance performance by leveraging another benefit of quantization: reduced bit width.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The quantized fixed-point Convolution utilizes the <code class="docutils literal notranslate"><span class="pre">conv.h</span></code> kernel found in <code class="docutils literal notranslate"><span class="pre">tensorflow/lite/kernels/internal/reference/integer_ops</span></code>, while the float32 Convolution from the previous lab uses <code class="docutils literal notranslate"><span class="pre">tensorflow/lite/kernels/internal/reference/conv.h</span></code>. These kernels differ, so if you notice that your cycle counter does not function correctly with the quantized model, there is no need for concern.</p>
+</div>
+</section>
+<section id="simd-mac-instruction-80">
+<h2>SIMD MAC Instruction - 80%<a class="headerlink" href="#simd-mac-instruction-80" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<section id="accelerate-convolution-60">
+<h3>Accelerate Convolution - 60%<a class="headerlink" href="#accelerate-convolution-60" title="Link to this heading">#</a></h3>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p><a class="reference external" href="https://cfu-playground.readthedocs.io/en/latest/step-by-step.html">The Step-by-Step Guide to Building an ML Accelerator</a><br />
+You can refer to the tutorial provided in the link, but the design in the tutorial cannot be directly applied to the model we provided. This means that <strong>if you copy the tutorial exactly, your program is likely to not function correctly</strong>. Please properly profile the model we have provided and use this to design an accelerator that suits this model.</p>
+</div>
+<p>The main principle of SIMD (Single Instruction, Multiple Data) instructions involves processing multiple data with a single instruction. In the int8 convolution, each filter and input value spans 8 bits. Utilizing a custom CFU operation, we can employ two 32-bit wide registers. This setup enables the execution of four simultaneous MAC (Multiply-Accumulate) operations in a single cycle.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>              <span class="mi">7</span> <span class="n">bits</span>
+         <span class="o">+--------------+</span>
+<span class="n">funct7</span> <span class="o">=</span> <span class="o">|</span> <span class="p">(</span><span class="nb">bool</span><span class="p">)</span> <span class="n">reset</span> <span class="o">|</span>
+         <span class="o">+--------------+</span>
+
+              <span class="n">int8_t</span>           <span class="n">int8_t</span>           <span class="n">int8_t</span>           <span class="n">int8_t</span>
+         <span class="o">+----------------+----------------+----------------+----------------+</span>
+   <span class="n">in0</span> <span class="o">=</span> <span class="o">|</span> <span class="n">input_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="o">|</span> <span class="n">input_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="o">|</span> <span class="n">input_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>  <span class="o">|</span> <span class="n">input_data</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>  <span class="o">|</span>
+         <span class="o">+----------------+----------------+----------------+----------------+</span>
+
+              <span class="n">int8_t</span>           <span class="n">int8_t</span>           <span class="n">int8_t</span>           <span class="n">int8_t</span>
+         <span class="o">+----------------+----------------+----------------+----------------+</span>
+   <span class="n">in1</span> <span class="o">=</span> <span class="o">|</span> <span class="n">filter_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">|</span> <span class="n">filter_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">|</span> <span class="n">filter_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">|</span> <span class="n">filter_data</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">|</span>
+         <span class="o">+----------------+----------------+----------------+----------------+</span>
+
+                                        <span class="n">int32_t</span>
+         <span class="o">+----------------------------------------------------------------------+</span>
+<span class="n">output</span> <span class="o">=</span> <span class="o">|</span> <span class="n">output</span> <span class="o">+</span> <span class="p">(</span><span class="n">input_data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">)</span> <span class="o">*</span> <span class="n">filter_data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">|</span>
+         <span class="o">+----------------------------------------------------------------------+</span>
+</pre></div>
+</div>
+<p>Feel free to use the templates below or write your own.</p>
+<section id="cfu-v">
+<h4>cfu.v<a class="headerlink" href="#cfu-v" title="Link to this heading">#</a></h4>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="k">module</span><span class="w"> </span><span class="n">Cfu</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">input</span><span class="w">               </span><span class="n">cmd_valid</span><span class="p">,</span>
+<span class="w">    </span><span class="k">output</span><span class="w">              </span><span class="n">cmd_ready</span><span class="p">,</span>
+<span class="w">    </span><span class="k">input</span><span class="w">      </span><span class="p">[</span><span class="mh">9</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w">    </span><span class="n">cmd_payload_function_id</span><span class="p">,</span>
+<span class="w">    </span><span class="k">input</span><span class="w">      </span><span class="p">[</span><span class="mh">31</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w">   </span><span class="n">cmd_payload_inputs_0</span><span class="p">,</span>
+<span class="w">    </span><span class="k">input</span><span class="w">      </span><span class="p">[</span><span class="mh">31</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w">   </span><span class="n">cmd_payload_inputs_1</span><span class="p">,</span>
+<span class="w">    </span><span class="k">output</span><span class="w"> </span><span class="kt">reg</span><span class="w">          </span><span class="n">rsp_valid</span><span class="p">,</span>
+<span class="w">    </span><span class="k">input</span><span class="w">               </span><span class="n">rsp_ready</span><span class="p">,</span>
+<span class="w">    </span><span class="k">output</span><span class="w"> </span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="mh">31</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w">   </span><span class="n">rsp_payload_outputs_0</span><span class="p">,</span>
+<span class="w">    </span><span class="k">input</span><span class="w">               </span><span class="n">reset</span><span class="p">,</span>
+<span class="w">    </span><span class="k">input</span><span class="w">               </span><span class="n">clk</span>
+<span class="p">);</span>
+
+<span class="w">    </span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="mh">8</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">InputOffset</span><span class="p">,</span><span class="w"> </span><span class="n">FilterOffset</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// SIMD multiply step:</span>
+<span class="w">    </span><span class="kt">wire</span><span class="w"> </span><span class="k">signed</span><span class="w"> </span><span class="p">[</span><span class="mh">15</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">prod_0</span><span class="p">,</span><span class="w"> </span><span class="n">prod_1</span><span class="p">,</span><span class="w"> </span><span class="n">prod_2</span><span class="p">,</span><span class="w"> </span><span class="n">prod_3</span><span class="p">;</span>
+<span class="w">    </span><span class="k">assign</span><span class="w"> </span><span class="n">prod_0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>
+<span class="w">    </span><span class="k">assign</span><span class="w"> </span><span class="n">prod_1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>
+<span class="w">    </span><span class="k">assign</span><span class="w"> </span><span class="n">prod_2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>
+<span class="w">    </span><span class="k">assign</span><span class="w"> </span><span class="n">prod_3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>
+
+<span class="w">    </span><span class="kt">wire</span><span class="w"> </span><span class="k">signed</span><span class="w"> </span><span class="p">[</span><span class="mh">31</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">sum_prods</span><span class="p">;</span>
+<span class="w">    </span><span class="k">assign</span><span class="w"> </span><span class="n">sum_prods</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prod_0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">prod_1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">prod_2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">prod_3</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Only not ready for a command when we have a response.</span>
+<span class="w">    </span><span class="k">assign</span><span class="w"> </span><span class="n">cmd_ready</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">rsp_valid</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="k">begin</span>
+
+<span class="w">        </span><span class="k">end</span>
+
+<span class="w">    </span><span class="k">end</span><span class="w">	         </span>
+<span class="k">endmodule</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference external" href="https://cfu-playground.readthedocs.io/en/latest/interface.html">Details and Use Cases of the CPU &lt;-&gt; CFU interface</a><br />
+For the handshake interface of CPU and CFU, you can refer to this guide. In this lab, the simplest one is OK, but in the following labs, you might use others.
+For the handshake interface between the CPU and CFU, please refer to this guide. For this lab, the simplest one is enough. However, for the following labs, you may need to explore other options.</p>
+</div>
+</section>
+<section id="conv-h">
+<h4>conv.h<a class="headerlink" href="#conv-h" title="Link to this heading">#</a></h4>
+<p>Add the integer version of Covolution to your project.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>src/tensorflow/lite/kernels/internal/reference/integer_ops
+$<span class="w"> </span>cp<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>../../third_party/tflite-micro/tensorflow/lite/kernels/internal/reference/integer_ops/conv.h<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>src/tensorflow/lite/kernels/internal/reference/integer_ops/conv.h
+</pre></div>
+</div>
+<p>Here are some tips for the next steps:</p>
+<ol class="arabic simple">
+<li><p>Strongly recommend viewing the entire structure of the .tflite file for this lab. You can visualize the layer graph by uploading it to <a class="reference external" href="https://netron.app/">Netron</a>.</p></li>
+<li><p>Identify the parameters that will influence your implementation of the custom operation.</p></li>
+</ol>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;playground_util/print_params.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;cfu.h&quot;</span>
+<span class="cm">/* ... */</span>
+<span class="kr">inline</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">ConvPerChannel</span><span class="p">(</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">ConvParams</span><span class="o">&amp;</span><span class="w"> </span><span class="n">params</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int32_t</span><span class="o">*</span><span class="w"> </span><span class="n">output_multiplier</span><span class="p">,</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int32_t</span><span class="o">*</span><span class="w"> </span><span class="n">output_shift</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">RuntimeShape</span><span class="o">&amp;</span><span class="w"> </span><span class="n">input_shape</span><span class="p">,</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int8_t</span><span class="o">*</span><span class="w"> </span><span class="n">input_data</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">RuntimeShape</span><span class="o">&amp;</span><span class="w"> </span><span class="n">filter_shape</span><span class="p">,</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int8_t</span><span class="o">*</span><span class="w"> </span><span class="n">filter_data</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">RuntimeShape</span><span class="o">&amp;</span><span class="w"> </span><span class="n">bias_shape</span><span class="p">,</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int32_t</span><span class="o">*</span><span class="w"> </span><span class="n">bias_data</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">RuntimeShape</span><span class="o">&amp;</span><span class="w"> </span><span class="n">output_shape</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">int8_t</span><span class="o">*</span><span class="w"> </span><span class="n">output_data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// Format is:</span>
+<span class="w">  </span><span class="c1">// &quot;padding_type&quot;, &quot;padding_width&quot;, &quot;padding_height&quot;, &quot;padding_width_offset&quot;,</span>
+<span class="w">  </span><span class="c1">// &quot;padding_height_offset&quot;, &quot;stride_width&quot;, &quot;stride_height&quot;,</span>
+<span class="w">  </span><span class="c1">// &quot;dilation_width_factor&quot;, &quot;dilation_height_factor&quot;, &quot;input_offset&quot;,</span>
+<span class="w">  </span><span class="c1">// &quot;weights_offset&quot;, &quot;output_offset&quot;, &quot;output_multiplier&quot;, &quot;output_shift&quot;,</span>
+<span class="w">  </span><span class="c1">// &quot;quantized_activation_min&quot;, &quot;quantized_activation_max&quot;,</span>
+<span class="w">  </span><span class="c1">// &quot;input_batches&quot;, &quot;input_height&quot;, &quot;input_width&quot;, &quot;input_depth&quot;,</span>
+<span class="w">  </span><span class="c1">// &quot;filter_output_depth&quot;, &quot;filter_height&quot;, &quot;filter_width&quot;, &quot;filter_input_depth&quot;,</span>
+<span class="w">  </span><span class="c1">// &quot;output_batches&quot;, &quot;output_height&quot;, &quot;output_width&quot;, &quot;output_depth&quot;,</span>
+<span class="w">  </span><span class="n">print_conv_params</span><span class="p">(</span><span class="n">params</span><span class="p">,</span><span class="w"> </span><span class="n">input_shape</span><span class="p">,</span><span class="w"> </span><span class="n">filter_shape</span><span class="p">,</span><span class="w"> </span><span class="n">output_shape</span><span class="p">);</span>
+
+<span class="w">  </span><span class="cm">/* ... */</span>
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">print_conv_params(params,</span> <span class="pre">input_shape,</span> <span class="pre">filter_shape,</span> <span class="pre">output_shape)</span></code> to show the parameters of every convolution layer.</p>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Replace some parts of original operations with <code class="docutils literal notranslate"><span class="pre">cfu_op0</span></code>, and don’t forget to add <code class="docutils literal notranslate"><span class="pre">#include</span> <span class="pre">&quot;cfu.h&quot;</span></code> in the file.</p></li>
+</ol>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">out_channel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">out_channel</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">output_depth</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">out_channel</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="p">...</span>
+
+<span class="w">    </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">acc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">filter_y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">filter_y</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">filter_height</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">filter_y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">in_y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">in_y_origin</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">dilation_height_factor</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">filter_y</span><span class="p">;</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">filter_x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">filter_x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">filter_width</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">filter_x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">in_x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">in_x_origin</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">dilation_width_factor</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">filter_x</span><span class="p">;</span>
+
+<span class="w">            </span><span class="c1">// Zero padding by omitting the areas outside the image.</span>
+<span class="w">            </span><span class="k">const</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">is_point_inside_image</span><span class="w"> </span><span class="o">=</span>
+<span class="w">                </span><span class="p">(</span><span class="n">in_x</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">in_x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">input_width</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">in_y</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">                </span><span class="p">(</span><span class="n">in_y</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">input_height</span><span class="p">);</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">is_point_inside_image</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="k">continue</span><span class="p">;</span>
+<span class="w">            </span><span class="p">}</span>
+
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The SIMD MAC implementation on the Convolution should achieve at least a 10x speedup compared to the KWS model composed of FP32 and executed in a serial manner. The prediction on labels should also be correct.</p>
+<a class="reference internal image-reference" href="../_images/conv_result.png"><img alt="../_images/conv_result.png" src="../_images/conv_result.png" style="width: 300px;" />
+</a>
+<p>To get full score, the cycles of inferencing the quantized model should not beyond 2500M, and the prediction of all 5 labels should be correct.</p>
+</section>
+</section>
+<section id="accelerate-fully-connected-20">
+<h3>Accelerate Fully Connected - 20%<a class="headerlink" href="#accelerate-fully-connected-20" title="Link to this heading">#</a></h3>
+<p>In this part, please use the technique of SIMD MAC to accelerate the Fully Connected Layer.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>cp<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>../../third_party/tflite-micro/tensorflow/lite/kernels/internal/reference/integer_ops/fully_connected.h<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>src/tensorflow/lite/kernels/internal/reference/integer_ops/fully_connected.h
+</pre></div>
+</div>
+<p>The model uses per-channel fully connected layer; therefore, the function you need to modify is the third one in <code class="docutils literal notranslate"><span class="pre">fully_connected.h</span></code>. After implementing acceleration, the execution <code class="docutils literal notranslate"><span class="pre">ticks</span></code> of your function should be <code class="docutils literal notranslate"><span class="pre">fewer</span> <span class="pre">than</span> <span class="pre">35</span></code>.</p>
+<a class="reference internal image-reference" href="../_images/before.png"><img alt="../_images/before.png" src="../_images/before.png" style="width: 200px;" />
+</a>
+<a class="reference internal image-reference" href="../_images/after.png"><img alt="../_images/after.png" src="../_images/after.png" style="width: 200px;" />
+</a>
+</section>
+</section>
+<section id="questions-in-the-demo-10">
+<h2>Questions in the Demo - 10%<a class="headerlink" href="#questions-in-the-demo-10" title="Link to this heading">#</a></h2>
+<p>You will be asked several questions about the concepts covered in this lab and your implementation. This section accounts for 10% of the total lab score.</p>
+</section>
+<section id="submission">
+<h2>Submission<a class="headerlink" href="#submission" title="Link to this heading">#</a></h2>
+<p>You need to hand in your <strong>CFU-Playground project folder</strong> without the <code class="docutils literal notranslate"><span class="pre">build</span></code> folder and renamed with your student ID.</p>
+<p>Please organize your submission files into a zip archive structured as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>YourID.zip
+    └── YourID/
+        ├── src/
+        │    ├── folder... 
+        │    └── files...
+        ├── cfu.v
+        └── Makefile
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>TAs should be able to run your project without any modification. If TAs cannot compile or run your code, <strong>you can’t get any scores even if you passed the DEMO</strong>. Also, <strong>PLAGIARISM is not allowed</strong>.</p>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="lab_1.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Lab 1 : Environment Setup and Profiling a Model</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="lab_3.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Lab 3 : Systolic Array</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#goal-of-this-lab">Goal of this lab</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-quantized-model-10">Running Quantized Model - 10%</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simd-mac-instruction-80">SIMD MAC Instruction - 80%</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#accelerate-convolution-60">Accelerate Convolution - 60%</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cfu-v">cfu.v</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#conv-h">conv.h</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#accelerate-fully-connected-20">Accelerate Fully Connected - 20%</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#questions-in-the-demo-10">Questions in the Demo - 10%</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submission">Submission</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By  NYCU CAS-Lab
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, NYCU CAS-Lab.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
