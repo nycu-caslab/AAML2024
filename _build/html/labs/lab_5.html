@@ -1,0 +1,763 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Lab 5 : Systolic Array with im2col for Convolution &#8212; CSIC30066: Accelerator Architectures for Machine Learning</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'labs/lab_5';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Final Project: MLPerf™ Tiny" href="../project/final_project.html" />
+    <link rel="prev" title="Lab 4 : Elementwise Unit" href="lab_4.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">CSIC30066: Accelerator Architectures for Machine Learning</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Class:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../class/staff.html">Staff</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Labs:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="lab_1.html">Lab 1 : Environment Setup and Profiling a Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lab_2.html">Lab 2 : Quantization and SIMD MAC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lab_3.html">Lab 3 : Systolic Array</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lab_4.html">Lab 4 : Elementwise Unit</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Lab 5 : Systolic Array with im2col for Convolution</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Project:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../project/final_project.html">Final Project: MLPerf™ Tiny</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/labs/lab_5.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Lab 5 : Systolic Array with im2col for Convolution</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#goal-of-this-lab">Goal of this lab</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#integrate-systolic-array-to-cfu-playground-and-run-matmul-20">Integrate Systolic Array to CFU Playground and Run Matmul - 20%</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#intergration-and-verification-20">Intergration and Verification - 20%</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluation-criteria">Evaluation Criteria</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#im2col-for-convolution-20">im2col for Convolution - 20%</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Evaluation Criteria</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get-everything-together-50">Get Everything Together - 50%</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Evaluation Criteria</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#questions-in-the-demo-10">Questions in the Demo - 10%</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submission">Submission</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="lab-5-systolic-array-with-im2col-for-convolution">
+<h1>Lab 5 : Systolic Array with im2col for Convolution<a class="headerlink" href="#lab-5-systolic-array-with-im2col-for-convolution" title="Link to this heading">#</a></h1>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 11/17,23:40: </span>Corrected <code class="docutils literal notranslate"><span class="pre">wget</span></code> command in <a class="reference internal" href="#im2col-for-convolution-20"><span class="xref myst">im2col for Convolution</span></a>:</p>
+<ul class="simple">
+<li><p>Fixed an error in the previous version where <code class="docutils literal notranslate"><span class="pre">functional_cfu_tests.cc</span></code> was incorrectly get. Updated to get the correct file, <code class="docutils literal notranslate"><span class="pre">conv_test.cc</span></code>.</p></li>
+</ul>
+</div>
+<section id="goal-of-this-lab">
+<h2>Goal of this lab<a class="headerlink" href="#goal-of-this-lab" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<ul class="simple">
+<li><p><a class="reference internal" href="#integrate-systolic-array-to-cfu-playground-and-run-matmul-20"><span class="xref myst">Integrate Systolic Array to CFU Playground and Run Matmul - 20%</span></a></p></li>
+<li><p><a class="reference internal" href="#im2col-for-convolution-20"><span class="xref myst">im2col for Convolution - 20%</span></a></p></li>
+<li><p><a class="reference internal" href="#get-everything-together-50"><span class="xref myst">Get Everything Together - 50%</span></a></p></li>
+<li><p><a class="reference internal" href="#questions-in-the-demo-10"><span class="xref myst">Questions in the Demo - 10%</span></a></p></li>
+</ul>
+</section>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<p>After finishing lab 3, the implementation of systolic array, we are going to integrate it into the CFU playground. As lab 3 focuses on the design of the circuit, in this lab, you will attempt to do SW-HW co-design to leverage your circuit for accelerating real-world applications.</p>
+<p>To successfully integrate your systolic array into CFU-Playground, several modifications are required to make your design synthesizable and meet the necessary constraints. Additionally, you will develop a set of CFU operations that enable efficient communication between the CPU and the TPU for controlling your hardware.</p>
+<p>Since the systolic array is designed for matrix multiplication, a technique known as im2col is essential to adapt it for accelerating 2D convolution operations by converting convolutions into matrix multiplications. You’ll also need to implement it in this lab.</p>
+</section>
+<section id="integrate-systolic-array-to-cfu-playground-and-run-matmul-20">
+<h2>Integrate Systolic Array to CFU Playground and Run Matmul - 20%<a class="headerlink" href="#integrate-systolic-array-to-cfu-playground-and-run-matmul-20" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<p>The matrix data needs to be transmitted from the CPU to the global buffers A and B in the CFU. Once all the required data has been gathered, then the TPU will start to compute this matrix data. The outcome of the computation will be preserved in the buffer C. Finally, the data stored in the buffer C will be written back to the CPU.</p>
+<a class="reference internal image-reference" href="../_images/block_diagram.png"><img alt="../_images/block_diagram.png" src="../_images/block_diagram.png" style="width: 600px;" />
+</a>
+<p>The key word spotting model we intend to accelerate uses int8, and since negative values occur during computation, we need to modify it to support operations with signed integers.</p>
+<p>You may use the below command under the lab 3 directory <code class="docutils literal notranslate"><span class="pre">AAML2024-Lab3/</span></code> to make sure it can deal with <em><strong>signed</strong></em> int8 correctly.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ make verif_signed
+</pre></div>
+</div>
+<p>The pattern generator will generate 50 sets of two 16*16 matrix using int8 ∈ [-128, 128) and pass it to your systolic array and check the answers.</p>
+<section id="intergration-and-verification-20">
+<h3>Intergration and Verification - 20%<a class="headerlink" href="#intergration-and-verification-20" title="Link to this heading">#</a></h3>
+<p>Now you are ready to do the intergration! Create a new project folder just like previous labs.</p>
+<p>As shown in the block diagram, we will also be intergrating global buffer A, B and C into the CFU, we have provide a global buffer that utilises the BRAM resources of the FPGA instead of flip-flop, <strong>please mind that this buffer does not have an async reset</strong>.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p><a class="reference external" href="https://raw.githubusercontent.com/nycu-caslab/AAML2024/refs/heads/main/lab5_util/global_buffer_bram.v">global_buffer_bram.v</a> for the global buffer using BRAM and the example to instantiates it.</p>
+<p>It’s totally fine if you want to use something else instead of using this BRAM buffer and example, as long as you can integrate your systolic array to into the CFU and pass the tests.</p>
+</div>
+<p>After all the hardware coding and designing the <code class="docutils literal notranslate"><span class="pre">cfu_op</span></code> to pass and recieve data from your accelerator, it is nice to do some verification now, we have provide a test before you really dive into the complicated inferencing of the KWS model.</p>
+<ol class="arabic simple">
+<li><p>Run this command under the project directory to wget the golden test <code class="docutils literal notranslate"><span class="pre">functional_cfu_tests.cc</span></code> to your project</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ wget -P src/ https://github.com/nycu-caslab/AAML2024/raw/main/lab5_util/functional_cfu_tests.cc
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">clean</span></code>, <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">prog</span> <span class="pre">EXTRA_LITEX_ARGS=&quot;--cpu-variant=perf+cfu&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">load</span></code> and enter <code class="docutils literal notranslate"><span class="pre">2:</span> <span class="pre">Functional</span> <span class="pre">CFU</span> <span class="pre">Tests</span></code> from the main menu, it shall look something like this:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Tests for Functional CFUs
+=========================
+ h: Matmul 16*16 int8 w/ pattern 1
+ e: Matmul 16*16 int8 w/ pattern 2
+ l: Matmul 16*16 int8 w/ pattern 3
+ p: Matmul 16*16 int8 w/ pattern 4
+ !: Matmul 16*16 int8 4096 times w/ 4 patterns rotating
+ x: eXit to previous menu
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">clean</span></code> then <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">prog</span> <span class="pre">EXTRA_LITEX_ARGS=&quot;--cpu-variant=perf+cfu&quot;</span></code> if you don’t see it.</p>
+<ol class="arabic simple" start="3">
+<li><p>Write the code about passing and recieving data to your accelerator from the software side in the <code class="docutils literal notranslate"><span class="pre">do_matmul_num</span></code> function of the <code class="docutils literal notranslate"><span class="pre">functional_cfu_tests.cc</span></code>.</p></li>
+</ol>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<ul class="simple">
+<li><p>All the pattern we use to test are 16*16 int8, that is, the M, N, K are all 16.</p></li>
+<li><p>The input layout are just like lab3.</p></li>
+<li><p>For the output, you are required to place it to a 2D 16*16 int32 matrix.</p></li>
+<li><p>We are using the <code class="docutils literal notranslate"><span class="pre">perf_counter</span></code> here, so make sure you <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">prog</span> <span class="pre">EXTRA_LITEX_ARGS=&quot;--cpu-variant=perf+cfu&quot;</span></code>.</p></li>
+<li><p>Or you might get stuck running patterns because you don’t have the <code class="docutils literal notranslate"><span class="pre">perf_counters</span></code> enabled.</p></li>
+</ul>
+</div>
+<p>For example, the first test case in the test (matrix A and its memory layout are just like lab3):</p>
+<p><a class="reference internal" href="../_images/A.png"><img alt="../_images/A.png" src="../_images/A.png" style="width: 600px;" /></a>   <a class="reference internal" href="../_images/TC_A.png"><img alt="../_images/TC_A.png" src="../_images/TC_A.png" style="width: 300px;" /></a></p>
+<p>matrix B and its memory layout (same as lab3):</p>
+<p><a class="reference internal" href="../_images/B.png"><img alt="../_images/B.png" src="../_images/B.png" style="width: 600px;" /></a>   <a class="reference internal" href="../_images/TC_B.png"><img alt="../_images/TC_B.png" src="../_images/TC_B.png" style="width: 300px;" /></a></p>
+<p>the answer should be :</p>
+<a class="reference internal image-reference" href="../_images/C.png"><img alt="../_images/C.png" src="../_images/C.png" style="width: 600px;" />
+</a>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">do_matmul_num</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">test_num</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// place your answer in this array!</span>
+<span class="w">  </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">C_arr</span><span class="p">[</span><span class="mi">16</span><span class="p">][</span><span class="mi">16</span><span class="p">];</span>
+
+<span class="w">  </span><span class="c1">// =====================================================</span>
+<span class="w">  </span><span class="c1">// Implement your design here, </span>
+<span class="w">  </span><span class="c1">// and DO NOT MODIFY ANYTHING &quot;ABOVE&quot; THIS LINE !!</span>
+<span class="w">  </span><span class="c1">// ===================================================== </span>
+
+<span class="w">  </span><span class="cm">/**</span>
+<span class="cm">    All inputs are 16*16 signed int8 matrix, outputs are 16*16 signed int32.</span>
+<span class="cm">    1. Pass data to CFU.</span>
+<span class="cm">    2. Pass matrix parameters to CFU.</span>
+<span class="cm">    3. Receive data from CFU and place it to `C_arr`.</span>
+<span class="cm">  */</span><span class="w"> </span>
+
+<span class="w">  </span><span class="c1">// =====================================================</span>
+<span class="w">  </span><span class="c1">// DO NOT MODIFY ANYTHING &quot;BELOW&quot; THIS LINE !!</span>
+<span class="w">  </span><span class="c1">// =====================================================</span>
+
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">16</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">16</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">C_arr</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">C_arr_ans</span><span class="p">[</span><span class="n">test_num</span><span class="p">][(</span><span class="n">i</span><span class="o">&lt;&lt;</span><span class="mi">4</span><span class="p">)</span><span class="o">+</span><span class="n">j</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">error_ct</span><span class="o">++</span><span class="p">;</span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;*** %ld error(s) @ pattern no. %d</span><span class="se">\n</span><span class="s"> ---&gt; golden C_arr[%02ld][%02ld] = %08lX, your C_arr[%02ld][%02ld] = %08lX</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="n">error_ct</span><span class="p">,</span><span class="w"> </span><span class="n">test_num</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">C_arr_ans</span><span class="p">[</span><span class="n">test_num</span><span class="p">][(</span><span class="n">i</span><span class="o">&lt;&lt;</span><span class="mi">4</span><span class="p">)</span><span class="o">+</span><span class="n">j</span><span class="p">],</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">C_arr</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]);</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="evaluation-criteria">
+<h3>Evaluation Criteria<a class="headerlink" href="#evaluation-criteria" title="Link to this heading">#</a></h3>
+<p>If you successfully complete the final part <a class="reference internal" href="#get-everything-together-50"><span class="xref myst">Get Everything Together</span></a>, you will automatically receive the score for this section. However, if you are unable to complete the final part, you can test this section independently and still earn the score for it.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>You will get <strong>0%</strong> if you can’t pass the golden test or didn’t meet the requirement, you have to pass the pattern below to get 20%.</p>
+</div>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Passes pattern</p></th>
+<th class="head"><p>4096 times 1-4 rotating</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>cycle ct. requirement</p></td>
+<td><p>&lt; 45M</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="im2col-for-convolution-20">
+<h2>im2col for Convolution - 20%<a class="headerlink" href="#im2col-for-convolution-20" title="Link to this heading">#</a></h2>
+<p>Using the im2col technique, we can convert a 2D convolution operation into the multiplication of two matrices, which can then be efficiently accelerated by the systolic array.</p>
+<p>To construct these two matrices, which we will refer to as the kernel matrix and the im2col matrix, you can refer to the article:
+<a class="reference external" href="https://petewarden.com/2015/04/20/why-gemm-is-at-the-heart-of-deep-learning/">Why GEMM is at the heart of deep learning</a></p>
+<p>Here is the core part I excerpted from the article:</p>
+<blockquote>
+<div><p>The first step is to turn the input from an image, which is effectively a 3D array, into a 2D array that we can treat like a matrix. Where each kernel is applied is a little three-dimensional cube within the image, and so we take each one of those cubes of input values and copy them out as a single column into a matrix. This is known as im2col, for image-to-column.<br />
+<a class="reference internal" href="../_images/im2col_1.png"><img alt="../_images/im2col_1.png" src="../_images/im2col_1.png" style="width: 600px;" /></a><br />
+Now you have the input image in matrix form, you do the same for each kernel’s weights, serializing the 3D cubes into rows as the second matrix for the multiplication. Here’s what the final GEMM looks like:<br />
+<a class="reference internal" href="../_images/im2col_2.png"><img alt="../_images/im2col_2.png" src="../_images/im2col_2.png" style="width: 600px;" /></a><br />
+Here ‘k’ is the number of values in each patch and kernel, so it’s kernel width * kernel height * depth. The resulting matrix is ‘Number of patches’ columns high, by ‘Number of kernel’ rows wide. This matrix is actually treated as a 3D array by subsequent operations, by taking the number of kernels dimension as the depth, and then splitting the patches back into rows and columns based on their original position in the input image.</p>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Other than the shapes of convolution, it is also crucial to handle parameters such as <strong>stride, dilation and padding</strong> correctly to ensure the matrices are constructed properly for the convolution.</p>
+<p>For simplicity, in this lab, <strong>you can ignore batch and group</strong> parameters, assuming both are set to 1. This assumption will still allow you to pass all the required tests.</p>
+</div>
+<p>Also, you may have noticed that dynamic memory allocation, such as using new or malloc, is not supported in CFU-Playground. Therefore, we recommand declaring fixed-size arrays, for example:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int8_t</span><span class="w"> </span><span class="n">im2col</span><span class="p">[...][...];</span>
+<span class="kt">int8_t</span><span class="w"> </span><span class="n">kernel</span><span class="p">[...][...];</span>
+<span class="kt">int32_t</span><span class="w"> </span><span class="n">result</span><span class="p">[...][...];</span>
+</pre></div>
+</div>
+<p>Once the kernel matrix and im2col matrix are constructed, you can perform a simple matrix multiplication (naive GEMM) to verify your implementation in this part.</p>
+<p>Afterward, you will need to reconstruct the output tensor from the result matrix. This process shares similar concepts with constructing the im2col and kernel matrices. Finally, don’t forget to apply post-processing to the tensor, such as quantization and bias addition.</p>
+<p>Under your project directory, add the <code class="docutils literal notranslate"><span class="pre">conv.h</span></code> to your project and do your modification on the  <code class="docutils literal notranslate"><span class="pre">ConvPerChannel</span></code> function.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>cp<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>../../third_party/tflite-micro/tensorflow/lite/kernels/internal/reference/integer_ops/conv.h<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>src/tensorflow/lite/kernels/internal/reference/integer_ops/conv.h
+</pre></div>
+</div>
+<p>Download the unit tests for testing your implementation under your lab5 project directory:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span><span class="si">${</span><span class="nv">CFU_ROOT</span><span class="si">}</span>/proj/lab5_proj
+$<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>src/tensorflow/lite/micro/kernels
+$<span class="w"> </span>wget<span class="w"> </span>-P<span class="w"> </span>src/tensorflow/lite/micro/kernels<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>https://github.com/nycu-caslab/AAML2024/raw/main/lab5_util/conv_test.cc
+$<span class="w"> </span>wget<span class="w"> </span>-P<span class="w"> </span>src/<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>https://github.com/nycu-caslab/AAML2024/raw/main/lab5_util/tflite_unit_tests.cc
+</pre></div>
+</div>
+<section id="id1">
+<h3>Evaluation Criteria<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<p>If you successfully complete the final part <a class="reference internal" href="#get-everything-together-50"><span class="xref myst">Get Everything Together</span></a>, you will automatically receive the score for this section. However, if you are unable to complete the final part, you can test this section independently and still earn the score for it.</p>
+<p>To earn the score for this part, you need to perform the im2col transformation for the convolution. However, the matrix multiplication can be handled purely through software using a naive GEMM implementation. To pass, you must successfully complete the <code class="docutils literal notranslate"><span class="pre">TFLite</span> <span class="pre">Unit</span> <span class="pre">Tests</span></code> without any failures.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CFU</span> <span class="n">Playground</span>
+<span class="o">==============</span>
+ <span class="mi">1</span><span class="p">:</span> <span class="n">TfLM</span> <span class="n">Models</span> <span class="n">menu</span>
+ <span class="mi">2</span><span class="p">:</span> <span class="n">Functional</span> <span class="n">CFU</span> <span class="n">Tests</span>
+ <span class="mi">3</span><span class="p">:</span> <span class="n">Project</span> <span class="n">menu</span>
+ <span class="mi">4</span><span class="p">:</span> <span class="n">Performance</span> <span class="n">Counter</span> <span class="n">Tests</span>
+<span class="o">&gt;</span><span class="mi">5</span><span class="p">:</span> <span class="n">TFLite</span> <span class="n">Unit</span> <span class="n">Tests</span>
+ <span class="mi">6</span><span class="p">:</span> <span class="n">Benchmarks</span>
+ <span class="mi">7</span><span class="p">:</span> <span class="n">Util</span> <span class="n">Tests</span>
+ <span class="mi">8</span><span class="p">:</span> <span class="n">Embench</span> <span class="n">IoT</span>
+<span class="n">main</span><span class="o">&gt;</span> <span class="mi">5</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">12</span><span class="o">/</span><span class="mi">12</span> <span class="n">tests</span> <span class="n">passed</span>
+<span class="o">~~~</span><span class="n">ALL</span> <span class="n">TESTS</span> <span class="n">PASSED</span><span class="o">~~~</span>
+</pre></div>
+</div>
+<p>All 12 tests must be passed.</p>
+</section>
+</section>
+<section id="get-everything-together-50">
+<h2>Get Everything Together - 50%<a class="headerlink" href="#get-everything-together-50" title="Link to this heading">#</a></h2>
+<p>Now you have a working systolic array that can do matmul correctly, and a im2col SW code for turning convolution into matmul, it’s time to get everything together!</p>
+<p>Since the the buffer size of systolic array is limited, you might need <strong>tiling</strong> for the matrix multiplication. If you are not familiar with it, you can refer to this article:<br />
+<a class="reference external" href="https://alvinwan.com/how-to-tile-matrix-multiplication/">How to tile matrix multiplication</a></p>
+<p>Here’s a simple example for you. Here, T represents the size of each tile, which you may want to set based on the buffer size. In addition to the outer loops, some inner loops may be required to manage the sending and receiving logic.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">constexpr</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">T</span><span class="p">;</span><span class="w"> </span><span class="c1">// tile size</span>
+
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">pad_M</span><span class="p">;</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">T</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">pad_N</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">T</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">pad_K</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">T</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">// send to im2col buffer</span>
+<span class="w">      </span><span class="c1">// send to kernel buffer</span>
+<span class="w">      </span><span class="c1">// receive from output buffer</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>You may run into some boundary problems when padding. <strong>Handle the values that are out of boundary correctly to achieve the correct result.</strong></p>
+<p>Please note that there are <code class="docutils literal notranslate"><span class="pre">input_offset</span></code> when doing convolution, you may either modify the hardware to accumulate with the offset, or try any method as you see fit.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>acc += filter_val * (input_val + `input_offset`)
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Add the sixth perf counter at the beginning and end of the topmost <code class="docutils literal notranslate"><span class="pre">ConvPerChannel</span></code> function within the <code class="docutils literal notranslate"><span class="pre">conv.h</span></code> file in your project. This step is crucial for evaluating your score, so please ensure it is not overlooked.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="c1">// Fixed-point per-channel-quantization convolution reference kernel.</span>
+<span class="w">  </span><span class="kr">inline</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">ConvPerChannel</span><span class="p">(</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">ConvParams</span><span class="o">&amp;</span><span class="w"> </span><span class="n">params</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int32_t</span><span class="o">*</span><span class="w"> </span><span class="n">output_multiplier</span><span class="p">,</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int32_t</span><span class="o">*</span><span class="w"> </span><span class="n">output_shift</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">RuntimeShape</span><span class="o">&amp;</span><span class="w"> </span><span class="n">input_shape</span><span class="p">,</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int8_t</span><span class="o">*</span><span class="w"> </span><span class="n">input_data</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">RuntimeShape</span><span class="o">&amp;</span><span class="w"> </span><span class="n">filter_shape</span><span class="p">,</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int8_t</span><span class="o">*</span><span class="w"> </span><span class="n">filter_data</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">RuntimeShape</span><span class="o">&amp;</span><span class="w"> </span><span class="n">bias_shape</span><span class="p">,</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int32_t</span><span class="o">*</span><span class="w"> </span><span class="n">bias_data</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">RuntimeShape</span><span class="o">&amp;</span><span class="w"> </span><span class="n">output_shape</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">int8_t</span><span class="o">*</span><span class="w"> </span><span class="n">output_data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">perf_enable_counter</span><span class="p">(</span><span class="mi">6</span><span class="p">);</span>
+
+<span class="w">    </span><span class="p">...</span>
+
+<span class="w">    </span><span class="n">perf_disable_counter</span><span class="p">(</span><span class="mi">6</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<section id="id2">
+<h3>Evaluation Criteria<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<p>We will test the performance of your implemetation base on the quantized KWS model provided in lab2. Note that your systolic array + im2col shall be faster than lab2’s SIMD method, we will be running several labels to make sure you have done everything right.</p>
+<p>Also, to earn the score for this part, you still need to complete the <code class="docutils literal notranslate"><span class="pre">TFLite</span> <span class="pre">Unit</span> <span class="pre">Tests</span></code> without any failures.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>You will get <strong>0%</strong> if you can’t pass the <code class="docutils literal notranslate"><span class="pre">TFLite</span> <span class="pre">Unit</span> <span class="pre">Tests</span></code> or didn’t meet the requirement.</p>
+</div>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Cycles of Counter 6</p></th>
+<th class="head"><p>&gt; 650M</p></th>
+<th class="head"><p>650~550M</p></th>
+<th class="head text-left"><p>550~480M</p></th>
+<th class="head text-left"><p>&lt; 480M</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Score</p></td>
+<td><p>0</p></td>
+<td><p>30</p></td>
+<td class="text-left"><p>40</p></td>
+<td class="text-left"><p>50</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="questions-in-the-demo-10">
+<h2>Questions in the Demo - 10%<a class="headerlink" href="#questions-in-the-demo-10" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<p>You will be asked several questions about the concepts covered in this lab and your implementation. This section accounts for 10% of the total lab score.</p>
+</section>
+<section id="submission">
+<h2>Submission<a class="headerlink" href="#submission" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<p>You need to hand in your <strong>CFU-Playground project folder</strong> without the <code class="docutils literal notranslate"><span class="pre">build</span></code> folder and renamed with your student ID.</p>
+<p>Please organize your submission files into a zip archive structured as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>YourID.zip
+    └── YourID/
+        ├── src/
+        │    ├── folder... 
+        │    └── files...
+        ├── cfu.v
+        └── Makefile
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>TAs should be able to run your project without any modification. If TAs cannot compile or run your code, <strong>you won’t receive any points, even if you passed the DEMO</strong>. Also, <strong>PLAGIARISM is not allowed</strong>.</p>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="lab_4.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Lab 4 : Elementwise Unit</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../project/final_project.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Final Project: MLPerf™ Tiny</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#goal-of-this-lab">Goal of this lab</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#integrate-systolic-array-to-cfu-playground-and-run-matmul-20">Integrate Systolic Array to CFU Playground and Run Matmul - 20%</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#intergration-and-verification-20">Intergration and Verification - 20%</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluation-criteria">Evaluation Criteria</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#im2col-for-convolution-20">im2col for Convolution - 20%</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Evaluation Criteria</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get-everything-together-50">Get Everything Together - 50%</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Evaluation Criteria</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#questions-in-the-demo-10">Questions in the Demo - 10%</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submission">Submission</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By  NYCU CAS-Lab
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, NYCU CAS-Lab.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
